@@ -1,0 +1,75 @@
+name: 一键ROOT-DELTA
+
+on:
+  workflow_dispatch:
+    inputs:
+      rom_url:
+        description: 'ROM 下载直链'
+        required: true
+        default: 'h'
+      zip_name:
+        description: 'ZIP 包名称'
+        required: true
+        default: 'A-'
+      ver:
+        description: 'Magisk 版本(24.3/25.2/26.1)'
+        required: true
+        default: '24.3'
+
+jobs:
+  YIJIANROOT:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v2
+
+      - name: 安装依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install python3-pip
+          sudo apt install aria2 liblzma-dev brotli lz4
+          pip3 install backports.lzma pycrypto
+          pip install protobuf==3.20
+          BUILD_TIME=$(TZ=Asia/Shanghai date +"%m%d%H%M")
+          echo "BUILD_TIME=$BUILD_TIME" >> $GITHUB_ENV
+
+      - name: 提取镜像
+        run: |
+          cd ${{ github.workspace }}
+          aria2c -s 10 -x 10 -d . -o firmware.zip "${{ github.event.inputs.rom_url }}"
+          unzip firmware.zip
+          chmod +x ./payload-dumper-go
+          
+          if [ -f "payload.bin" ]; then ./payload-dumper-go -p boot payload.bin; fi
+          touch info.md
+          echo "提交日期：$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M:%S')" >> info.md
+          echo "ROM 下载直链：${{ github.event.inputs.rom_url }}" >> info.md
+          echo "Magisk 修补版本：${{ github.event.inputs.ver }}" >> info.md
+          if [ -f "init_boot.img" ]; then rm boot.img; fi
+    
+      - name: 创建一键 ROOT ZIP
+        run: |
+          cd ~
+          git clone -b delta https://github.com/QingnAii/magisk_patch.git XIUBU
+          chmod -R +x XIUBU
+          cd XIUBU
+          if [ -f "${{ github.workspace }}/payload.bin" ]; then mv ${{ github.workspace }}/out/* ./; fi
+          if [ -f "${{ github.workspace }}/boot.img" ]; then mv ${{ github.workspace }}/boot.img ./; fi
+          mkdir done
+          ./boot.sh
+          cd ~
+          git clone https://github.com/QingnAioo/bas.git "${{ github.event.inputs.zip_name }}"
+          mkdir -p ~/${{ github.event.inputs.zip_name }}/magisk
+          mv ~/XIUBU/done/*.img ~/${{ github.event.inputs.zip_name }}/magisk/magisk.img
+          cd ${{ github.event.inputs.zip_name }}
+          rm -rf .git
+          cd ~
+          7z a -tzip -mx9 ${{ github.event.inputs.zip_name }}.zip ${{ github.event.inputs.zip_name }}/
+
+      - name: 上传 ZIP 及镜像信息
+        uses: ncipollo/release-action@v1.12.0
+        with:
+            artifacts: "~/${{ github.event.inputs.zip_name }}.zip"
+            bodyfile: "${{ github.workspace }}/info.md"
+            tag: "OUTPUT_${{ env.BUILD_TIME }}_${{ github.run_id }}"
+            token: ${{ secrets.GITHUB_TOKEN }}
