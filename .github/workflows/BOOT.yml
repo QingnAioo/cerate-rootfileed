@@ -1,4 +1,4 @@
-name:一键ROOT-boot-25.1
+name: 一键ROOT-boot-25.1
 
 on:
   workflow_dispatch:
