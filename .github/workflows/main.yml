@@ -1,0 +1,90 @@
+name: 自动-CREATE-ROOT.ZIP
+
+
+on:
+  workflow_dispatch:
+    inputs:
+      rom_url:
+        description: 'ROM 下载直链'
+        required: true
+        default: 'https://bigota.d.miui.com/'
+      zip_name:
+        description: 'ZIP 包名称'
+        required: true
+        default: 'A-'
+      ver:
+        description: 'Magisk 版本(24.3/25.2/26.1)'
+        required: true
+        default: '25.2'
+
+jobs:
+  YIJIANROOT:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v2
+
+      - name: 安装依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install python3-pip
+          sudo apt install aria2 liblzma-dev brotli lz4
+          pip3 install backports.lzma pycrypto
+          pip install protobuf==3.20
+          BUILD_TIME=$(TZ=Asia/Shanghai date +"%m%d%H%M")
+          echo "BUILD_TIME=$BUILD_TIME" >> $GITHUB_ENV
+      - name: 修改 hosts 文件
+        run: |
+          echo "47.74.196.250 bigota.d.miui.com" | sudo tee -a /etc/hosts
+          echo "47.74.196.250 hugeota.d.miui.com" | sudo tee -a /etc/hosts
+          sudo systemctl restart systemd-resolved
+      - name: 提取镜像
+        run: |
+          cd ${{ github.workspace }}
+          aria2c -s 10 -x 10 --check-certificate=false -d . -o firmware.zip "${{ github.event.inputs.rom_url }}"
+          unzip firmware.zip
+          chmod +x ./payload-dumper-go
+          if [ -f "payload.bin" ]; then ./payload-dumper-go -p boot payload.bin; fi
+          if [ -f "payload.bin" ]; then ./payload-dumper-go -p init_boot payload.bin; fi
+          touch info.md
+          echo "提交日期：$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M:%S')" >> info.md
+          echo "ROM 下载直链：${{ github.event.inputs.rom_url }}" >> info.md
+          echo "Magisk 修补版本：${{ github.event.inputs.ver }}" >> info.md
+          if [ -f "${{ github.workspace }}/out/init_boot.img" ]; then rm ${{ github.workspace }}/out/boot.img; fi
+    
+      - name: 创建一键 ROOT ZIP
+        run: |
+          cd ~
+          git clone https://github.com/QingnAii/magisk_patch.git -b "${{ github.event.inputs.ver }}" XIUBU
+          chmod -R +x XIUBU
+          cd XIUBU
+          if [ -f "${{ github.workspace }}/payload.bin" ]; then cp ${{ github.workspace }}/out/* ./; fi
+          if [ -f "${{ github.workspace }}/boot.img" ]; then mv ${{ github.workspace }}/boot.img ./; fi
+          mkdir done
+          ./boot.sh
+          cd ~
+          if [ -f "${{ github.workspace }}/out/init_boot.img" ]; then
+          git clone -b initboot https://github.com/QingnAioo/bas.git "${{ github.event.inputs.zip_name }}"
+          mkdir -p ~/${{ github.event.inputs.zip_name }}/images
+          mv ~/XIUBU/done/*.img ~/${{ github.event.inputs.zip_name }}/images/init_boot.img
+          cd ${{ github.event.inputs.zip_name }}
+          rm -rf .git
+          cd ~
+          7z a -tzip -mx9 ${{ github.event.inputs.zip_name }}.zip ${{ github.event.inputs.zip_name }}/
+          else
+          git clone https://github.com/QingnAioo/bas.git "${{ github.event.inputs.zip_name }}"
+          mkdir -p ~/${{ github.event.inputs.zip_name }}/images
+          mv ~/XIUBU/done/*.img ~/${{ github.event.inputs.zip_name }}/images/boot.img
+          cd ${{ github.event.inputs.zip_name }}
+          rm -rf .git
+          cd ~
+          7z a -tzip -mx9 ${{ github.event.inputs.zip_name }}.zip ${{ github.event.inputs.zip_name }}/
+          fi
+
+      - name: 上传 ZIP 及镜像信息
+        uses: ncipollo/release-action@v1.12.0
+        with:
+            artifacts: "~/${{ github.event.inputs.zip_name }}.zip"
+            bodyfile: "${{ github.workspace }}/info.md"
+            tag: "root1.0"
+            token: ${{ secrets.GITHUB_TOKEN }}
