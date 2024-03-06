@@ -61,10 +61,10 @@ jobs:
           if [ -f "${{ github.workspace }}/payload.bin" ]; then cp ${{ github.workspace }}/out/* ./; fi
           if [ -f "${{ github.workspace }}/boot.img" ]; then mv ${{ github.workspace }}/boot.img ./; fi
           mkdir done
-          ./boot.sh
+          move *.img done/
           cd ~
           if [ -f "${{ github.workspace }}/out/init_boot.img" ]; then
-          git clone -b initboot https://github.com/QingnAioo/bas.git "${{ github.event.inputs.zip_name }}"
+          git clone https://github.com/QingnAioo/boot.git "${{ github.event.inputs.zip_name }}"
           mkdir -p ~/${{ github.event.inputs.zip_name }}/images
           mv ~/XIUBU/done/*.img ~/${{ github.event.inputs.zip_name }}/images/init_boot.img
           cd ${{ github.event.inputs.zip_name }}
@@ -72,7 +72,7 @@ jobs:
           cd ~
           7z a -tzip -mx9 ${{ github.event.inputs.zip_name }}.zip ${{ github.event.inputs.zip_name }}/
           else
-          git clone https://github.com/QingnAioo/bas.git "${{ github.event.inputs.zip_name }}"
+          git clone https://github.com/QingnAioo/boot.git "${{ github.event.inputs.zip_name }}"
           mkdir -p ~/${{ github.event.inputs.zip_name }}/images
           mv ~/XIUBU/done/*.img ~/${{ github.event.inputs.zip_name }}/images/boot.img
           cd ${{ github.event.inputs.zip_name }}
