@@ -61,7 +61,7 @@ jobs:
           if [ -f "${{ github.workspace }}/payload.bin" ]; then cp ${{ github.workspace }}/out/* ./; fi
           if [ -f "${{ github.workspace }}/boot.img" ]; then mv ${{ github.workspace }}/boot.img ./; fi
           mkdir done
-          move *.img done/
+          mv *.img done/
           cd ~
           if [ -f "${{ github.workspace }}/out/init_boot.img" ]; then
           git clone https://github.com/QingnAioo/boot.git "${{ github.event.inputs.zip_name }}"
