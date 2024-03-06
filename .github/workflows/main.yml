@@ -11,7 +11,7 @@ on:
       zip_name:
         description: 'ZIP 包名称'
         required: true
-        default: 'A-'
+        default: ''
       ver:
         description: 'Magisk 版本(24.3/25.2/26.1)'
         required: true
