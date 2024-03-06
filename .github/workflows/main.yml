@@ -81,10 +81,11 @@ jobs:
           7z a -tzip -mx9 ${{ github.event.inputs.zip_name }}.zip ${{ github.event.inputs.zip_name }}/
           fi
 
-      - name: 上传 ZIP 及镜像信息
-        uses: ncipollo/release-action@v1.12.0
-        with:
-            artifacts: "~/${{ github.event.inputs.zip_name }}.zip"
-            bodyfile: "${{ github.workspace }}/info.md"
-            tag: "root1.0"
-            token: ${{ secrets.GITHUB_TOKEN }}
+      - name: 上传 ZIP 及镜像信息到 release  
+        uses: ncipollo/release-action@v1.12.0  
+        with:  
+          artifacts: "${{ github.workspace }}/${{ github.event.inputs.zip_name }}.zip" # 确保路径正确  
+          bodyFile: "${{ github.workspace }}/info.md" # 确保路径正确  
+          tag: "root1.0" # 确保这个 tag 已经存在  
+          token: "${{ secrets.GITHUB_TOKEN }}" # 使用默认的 GitHub 令牌
+
