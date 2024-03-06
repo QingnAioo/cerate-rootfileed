@@ -86,6 +86,6 @@ jobs:
         with:
             artifacts: "~/${{ github.event.inputs.zip_name }}.zip"
             bodyfile: "${{ github.workspace }}/info.md"
-            
+            tag: "root1.0"
             token: ${{ secrets.GITHUB_TOKEN }}
 
