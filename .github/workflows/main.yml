@@ -55,9 +55,6 @@ jobs:
       - name: 创建一键 ROOT ZIP
         run: |
           cd ~
-          git clone https://github.com/QingnAii/magisk_patch.git -b "${{ github.event.inputs.ver }}" XIUBU
-          chmod -R +x XIUBU
-          cd XIUBU
           if [ -f "${{ github.workspace }}/payload.bin" ]; then cp ${{ github.workspace }}/out/* ./; fi
           if [ -f "${{ github.workspace }}/boot.img" ]; then mv ${{ github.workspace }}/boot.img ./; fi
           mkdir done
