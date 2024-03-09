@@ -63,7 +63,7 @@ jobs:
           if [ -f "${{ github.workspace }}/out/init_boot.img" ]; then
           git clone https://github.com/QingnAioo/boot.git "${{ github.event.inputs.zip_name }}"
           mkdir -p ~/${{ github.event.inputs.zip_name }}/images
-          mv ~/XIUBU/done/*.img ~/${{ github.event.inputs.zip_name }}/images/init_boot.img
+          mv ~/done/*.img ~/${{ github.event.inputs.zip_name }}/images/init_boot.img
           cd ${{ github.event.inputs.zip_name }}
           rm -rf .git
           cd ~
@@ -71,7 +71,7 @@ jobs:
           else
           git clone https://github.com/QingnAioo/boot.git "${{ github.event.inputs.zip_name }}"
           mkdir -p ~/${{ github.event.inputs.zip_name }}/images
-          mv ~/XIUBU/done/*.img ~/${{ github.event.inputs.zip_name }}/images/boot.img
+          mv ~/done/*.img ~/${{ github.event.inputs.zip_name }}/images/boot.img
           cd ${{ github.event.inputs.zip_name }}
           rm -rf .git
           cd ~
