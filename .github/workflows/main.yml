@@ -1,11 +1,11 @@
-name: 自动-CREATE-boot.ZIP
+name: fail
 
 
 on:
   workflow_dispatch:
     inputs:
       rom_url:
-        description: 'ROM 下载直链'
+        description: 'ROM'
         required: true
         default: 'https://bigota.d.miui.com/'
       zip_name:
@@ -13,7 +13,7 @@ on:
         required: true
         default: ''
       ver:
-        description: 'Magisk 版本(24.3/25.2/26.1)'
+        description: 'M'
         required: true
         default: '25.2'
 
@@ -38,7 +38,7 @@ jobs:
           echo "47.74.196.250 bigota.d.miui.com" | sudo tee -a /etc/hosts
           echo "47.74.196.250 hugeota.d.miui.com" | sudo tee -a /etc/hosts
           sudo systemctl restart systemd-resolved
-      - name: 提取镜像
+      - name: one
         run: |
           cd ${{ github.workspace }}
           aria2c -s 10 -x 10 --check-certificate=false -d . -o firmware.zip "${{ github.event.inputs.rom_url }}"
@@ -48,11 +48,11 @@ jobs:
           if [ -f "payload.bin" ]; then ./payload-dumper-go -p init_boot payload.bin; fi
           touch info.md
           echo "提交日期：$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M:%S')" >> info.md
-          echo "ROM 下载直链：${{ github.event.inputs.rom_url }}" >> info.md
-          echo "Magisk 修补版本：${{ github.event.inputs.ver }}" >> info.md
+          echo "直链：${{ github.event.inputs.rom_url }}" >> info.md
+          echo "Magisk 版本：${{ github.event.inputs.ver }}" >> info.md
           if [ -f "${{ github.workspace }}/out/init_boot.img" ]; then rm ${{ github.workspace }}/out/boot.img; fi
     
-      - name: 创建一键 ROOT ZIP
+      - name: two
         run: |
           cd ~
           if [ -f "${{ github.workspace }}/payload.bin" ]; then cp ${{ github.workspace }}/out/* ./; fi
@@ -78,7 +78,7 @@ jobs:
           7z a -tzip -mx9 ${{ github.event.inputs.zip_name }}.zip ${{ github.event.inputs.zip_name }}/
           fi
 
-      - name: 上传 ZIP 及镜像信息
+      - name: three
         uses: ncipollo/release-action@v1.12.0
         with:
             artifacts: "~/${{ github.event.inputs.zip_name }}.zip"
