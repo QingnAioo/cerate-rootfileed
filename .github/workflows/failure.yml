@@ -5,10 +5,8 @@ on:
     inputs:
       rom_url:
         description: 'Enter the ROM URL'
-        required: true
       zip_name:
         description: 'Enter the ZIP name'
-        required: true
       combined_string:
         description: 'Enter a string to split'
         required: true
