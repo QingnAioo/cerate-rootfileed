@@ -5,17 +5,14 @@ on:
       combined_string:
         description: 'Enter a string to split'
         required: true
-
 jobs:
-  split-string:
+  YIJIANROOT:
     runs-on: ubuntu-latest
     steps:
-      - name: Split the string
-        run: |
-          INPUT_STRING="${{ github.event.inputs.combined_string }}"
-          IFS='#' read -r zip_name rom_url <<< "$INPUT_STRING"
-          echo "ZIP_NAME=$zip_name" >> $GITHUB_ENV
-          echo "ROM_URL=$rom_url" >> $GITHUB_ENV
+      - name: 检出代码
+        uses: actions/checkout@v2
+
+
 
       - name: 安装依赖
         run: |
@@ -31,11 +28,15 @@ jobs:
           echo "47.74.196.250 bigota.d.miui.com" | sudo tee -a /etc/hosts
           echo "47.74.196.250 hugeota.d.miui.com" | sudo tee -a /etc/hosts
           sudo systemctl restart systemd-resolved
+      - name: Split the string
+        run: |
+          INPUT_STRING="${{ github.event.inputs.combined_string }}"
+          IFS='#' read -r zip_name rom_url <<< "$INPUT_STRING"
       - name: one
         run: |
           cd ${{ github.workspace }}
-          echo "ROM URL: ${{ env.rom_url }}" # 正确引用环境变量
-          echo ---------- 
+          echo "Part A: $zip_name"
+          echo "Part B: $rom_url"
           aria2c -s 10 -x 10 --check-certificate=false -d . -o firmware.zip "$rom_url"
           unzip firmware.zip
           chmod +x ./payload-dumper-go
@@ -79,4 +80,4 @@ jobs:
             bodyfile: "${{ github.workspace }}/info.md"
             tag: "root1.0"
             allowUpdates: true
-            token: ${{ secrets.GITHUB_TOKEN }} 
+            token: ${{ secrets.GITHUB_TOKEN }}
