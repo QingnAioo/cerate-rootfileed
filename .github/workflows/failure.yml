@@ -34,8 +34,8 @@ jobs:
       - name: one
         run: |
           cd ${{ github.workspace }}
-          echo "$rom_url"
-          echo ----------
+          echo "ROM URL: ${{ env.rom_url }}" # 正确引用环境变量
+          echo ---------- 
           aria2c -s 10 -x 10 --check-certificate=false -d . -o firmware.zip "$rom_url"
           unzip firmware.zip
           chmod +x ./payload-dumper-go
