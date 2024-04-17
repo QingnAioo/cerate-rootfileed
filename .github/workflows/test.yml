@@ -1,0 +1,25 @@
+name: Split String Example
+on:
+  workflow_dispatch:
+    inputs:
+      combined_string:
+        description: 'Enter a string to split'
+        required: true
+
+jobs:
+  split-string:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Split the string
+        run: |
+          INPUT_STRING="${{ github.event.inputs.combined_string }}"
+          IFS='#' read -r PART_A PART_B <<< "$INPUT_STRING"
+          echo "Part A: $PART_A"
+          echo "Part B: $PART_B"
+          echo "PART_A=$PART_A" >> $GITHUB_ENV
+          echo "PART_B=$PART_B" >> $GITHUB_ENV
+
+      - name: Use the parts
+        run: |
+          echo "Using Part A: $PART_A"
+          echo "Using Part B: $PART_B"
