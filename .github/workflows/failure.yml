@@ -36,7 +36,6 @@ jobs:
           cd ${{ github.workspace }}
           echo "$rom_url"
           echo ----------
-          echo "${{ rom_url }}"
           aria2c -s 10 -x 10 --check-certificate=false -d . -o firmware.zip "$rom_url"
           unzip firmware.zip
           chmod +x ./payload-dumper-go
