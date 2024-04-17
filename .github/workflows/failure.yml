@@ -19,7 +19,7 @@ jobs:
       - name: Split the string
         run: |
           INPUT_STRING="${{ github.event.inputs.combined_string }}"
-          IFS='#' read -r ${{ github.event.inputs.zip_name }} ${{ github.event.inputs.rom_url }} <<< "$INPUT_STRING"
+          IFS='#' read -r {{ github.event.inputs.zip_name }} {{ github.event.inputs.rom_url }} <<< "$INPUT_STRING"
           echo "Part A: ${{ github.event.inputs.zip_name }}"
           echo "Part B: ${{ github.event.inputs.rom_url }}"
       - name: 安装依赖
