@@ -14,8 +14,7 @@ jobs:
         run: |
           INPUT_STRING="${{ github.event.inputs.combined_string }}"
           IFS='#' read -r zip_name rom_url <<< "$INPUT_STRING"
-          echo "Part A: ${{ zip_name }}"
-          echo "Part B: ${{ rom_url }}"
+
 
       - name: 安装依赖
         run: |
