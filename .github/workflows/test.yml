@@ -21,5 +21,6 @@ jobs:
 
       - name: Use the parts
         run: |
-          echo "Using Part A: $PART_A"
-          echo "Using Part B: $PART_B"
+          touch info.md
+          echo "Using Part A: $PART_A" >> info.md
+          echo "Using Part B: $PART_B" >> info.md
