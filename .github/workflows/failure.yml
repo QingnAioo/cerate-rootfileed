@@ -33,7 +33,6 @@ jobs:
           IFS='#' read -r zip_name rom_url <<< "$INPUT_STRING"
           echo "ZIP_NAME=$zip_name" >> $GITHUB_ENV
           echo "ROM_URL=$rom_url" >> $GITHUB_ENV
-          echo "${{ env.ZIP_NAME }}" >>info.md
 
       - name: Download and process ROM
         run: |
