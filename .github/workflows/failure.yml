@@ -33,6 +33,7 @@ jobs:
           IFS='#' read -r zip_name rom_url <<< "$INPUT_STRING"
           echo "ZIP_NAME=$zip_name" >> $GITHUB_ENV
           echo "ROM_URL=$rom_url" >> $GITHUB_ENV
+          echo "${{ env.ZIP_NAME }}" >>info.md
 
       - name: Download and process ROM
         run: |
@@ -43,9 +44,6 @@ jobs:
           chmod +x ./payload-dumper-go
           if [ -f "payload.bin" ]; then ./payload-dumper-go -p boot payload.bin; fi
           if [ -f "payload.bin" ]; then ./payload-dumper-go -p init_boot payload.bin; fi
-          touch info.md
-          echo "提交日期：$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M:%S')" >> info.md
-          echo "直链：${{ env.ROM_URL }}" >> info.md
           if [ -f "${{ github.workspace }}/out/init_boot.img" ]; then rm ${{ github.workspace }}/out/boot.img; fi
 
       - name: Prepare files for release
