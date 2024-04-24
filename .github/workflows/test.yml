@@ -12,4 +12,6 @@ jobs:
     steps:
       - name: Split the string
         run: |
+         wget -qO - https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/microsoft.gpg
+         sudo apt-get clean
          sudo apt-get update
