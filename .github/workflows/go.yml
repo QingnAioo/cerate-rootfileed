@@ -53,15 +53,15 @@ jobs:
         continue-on-error: true
         run: |
           cd ${{ github.workspace }}
-          python3 ${{ github.workspace }}/payload-dumper/payload_dumper/dumper.py --partitions boot ${{ env.ROM_URL }} -out ${{ github.workspace }}/payload_dumper/output/
-          python3 ${{ github.workspace }}/payload-dumper/payload_dumper/dumper.py --partitions init_boot ${{ env.ROM_URL }} -out ${{ github.workspace }}/payload_dumper/output/
+          python3 ${{ github.workspace }}/payload-dumper/payload_dumper/dumper.py --partitions boot ${{ env.ROM_URL }} 
+          python3 ${{ github.workspace }}/payload-dumper/payload_dumper/dumper.py --partitions init_boot ${{ env.ROM_URL }} 
           if [ -f "${{ github.workspace }}/payload_dumper/output/init_boot.img" ]; then rm ${{ github.workspace }}/payload_dumper/output/boot.img; fi
 
       - name: Prepare files for release
         run: |
           cd ~
           mkdir done
-          mv ${{ github.workspace }}/payload_dumper/output/*.img done/
+          mv ${{ github.workspace }}/payload-dumper/payload_dumper/output/*.img done/
           cd ~
           if [ -f "${{ github.workspace }}/payload_dumper/output/init_boot.img" ]; then
             git clone https://github.com/QingnAioo/boot.git "${{ env.ZIP_NAME }}"
