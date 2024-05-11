@@ -61,7 +61,7 @@ jobs:
         run: |
           cd ~
           mkdir done
-          mv ${{ github.workspace }}/payload-dumper/payload_dumper/output/*.img done/
+          mv ${{ github.workspace }}/output/*.img done/
           cd ~
           if [ -f "${{ github.workspace }}/payload_dumper/output/init_boot.img" ]; then
             git clone https://github.com/QingnAioo/boot.git "${{ env.ZIP_NAME }}"
