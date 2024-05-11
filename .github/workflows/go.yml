@@ -1,4 +1,42 @@
-- name: 缓存依赖
+
+name: payload_dumper
+
+on:
+  workflow_dispatch:
+    inputs:
+      combined_string:
+        description: 'Enter a string to split'
+        required: true
+
+jobs:
+  YIJIANROOT:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: |
+
+          sudo apt install aria2 liblzma-dev brotli lz4
+          BUILD_TIME=$(TZ=Asia/Shanghai date +"%m%d%H%M")
+          echo "BUILD_TIME=$BUILD_TIME" >> $GITHUB_ENV
+
+      - name: Modify hosts file
+        run: |
+          echo "47.74.196.250 bigota.d.miui.com" | sudo tee -a /etc/hosts
+          echo "47.74.196.250 hugeota.d.miui.com" | sudo tee -a /etc/hosts
+          sudo systemctl restart systemd-resolved
+
+      - name: Split the string
+        run: |
+          INPUT_STRING="${{ github.event.inputs.combined_string }}"
+          IFS='#' read -r zip_name rom_url <<< "$INPUT_STRING"
+          echo "ZIP_NAME=$zip_name" >> $GITHUB_ENV
+          echo "ROM_URL=$rom_url" >> $GITHUB_ENV
+
+
+      - name: 缓存依赖
         uses: actions/cache@v2
         with:
           path: ~/.cache/pip
@@ -8,5 +46,46 @@
 
       - name: 安装依赖
         run: |
-          git clone --single-branch --depth=1 https://github.com/5ec1cff/payload-dumper
+          git clone --single-branch --depth=1 
           cd payload-dumper && pip3 install -r requirement.txt
+
+
+      - name: Download and process ROM
+        continue-on-error: true
+        run: |
+          cd ${{ github.workspace }}
+          python3 ${{ github.workspace }}/payload-dumper/payload_dumper/dumper.py --partitions boot ${{ env.ROM_URL }} 
+          python3 ${{ github.workspace }}/payload-dumper/payload_dumper/dumper.py --partitions init_boot ${{ env.ROM_URL }} 
+          if [ -f "${{ github.workspace }}/payload_dumper/output/init_boot.img" ]; then rm ${{ github.workspace }}/payload_dumper/output/boot.img; fi
+
+      - name: Prepare files for release
+        run: |
+          cd ~
+          mkdir done
+          mv ${{ github.workspace }}/payload_dumper/output/*.img done/
+          cd ~
+          if [ -f "${{ github.workspace }}/payload_dumper/output/init_boot.img" ]; then
+            git clone https://github.com/QingnAioo/boot.git "${{ env.ZIP_NAME }}"
+            mkdir -p ~/${{ env.ZIP_NAME }}/images
+            mv ~/done/*.img ~/${{ env.ZIP_NAME }}/images/init_boot.img
+            cd ${{ env.ZIP_NAME }}
+            rm -rf .git
+            cd ~
+            7z a -tzip -mx9 "${{ env.ZIP_NAME }}.zip" "${{ env.ZIP_NAME }}/"
+          else
+            git clone https://github.com/QingnAioo/boot.git "${{ env.ZIP_NAME }}"
+            mkdir -p ~/${{ env.ZIP_NAME }}/images
+            mv ~/done/*.img ~/${{ env.ZIP_NAME }}/images/boot.img
+            cd ${{ env.ZIP_NAME }}
+            rm -rf .git
+            cd ~
+            7z a -tzip -mx9 "${{ env.ZIP_NAME }}.zip" "${{ env.ZIP_NAME }}/"
+          fi
+
+      - name: Create GitHub release
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          artifacts: "~/${{ env.ZIP_NAME }}.zip"
+          tag: "root1.0"
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
