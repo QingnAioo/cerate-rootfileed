@@ -14,13 +14,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Synchronize Time using NTP
+        
+      - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ntp
-          sudo timedatectl set-ntp true
-          sudo ntpdate -u pool.ntp.org
+          sudo apt install  liblzma-dev brotli lz4
+          BUILD_TIME=$(TZ=Asia/Shanghai date +"%m%d%H%M")
+          echo "BUILD_TIME=$BUILD_TIME" >> $GITHUB_ENV
 
       - name: Modify hosts file
         run: |
