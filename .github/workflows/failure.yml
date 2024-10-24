@@ -23,8 +23,8 @@ jobs:
 
       - name: Modify hosts file
         run: |
-          echo "47.74.196.250 bigota.d.miui.com" | sudo tee -a /etc/hosts
-          echo "47.74.196.250 hugeota.d.miui.com" | sudo tee -a /etc/hosts
+          echo "47.79.49.1 bigota.d.miui.com" | sudo tee -a /etc/hosts
+          echo "47.79.49.1 hugeota.d.miui.com" | sudo tee -a /etc/hosts
           sudo systemctl restart systemd-resolved
 
       - name: Split the string
